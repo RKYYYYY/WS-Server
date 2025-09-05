@@ -38,3 +38,10 @@ app.listen(PORT, () => {
   console.log(`Le serveur est démarré sur le port ${PORT}`);
   connectDB();
 });
+
+app.use((req, res, next) => {
+  console.log("---- Nouvelle requête ----");
+  console.log("Origin reçue :", req.headers.origin);
+  console.log("URL demandée :", req.originalUrl);
+  next();
+});
