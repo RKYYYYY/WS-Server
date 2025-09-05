@@ -76,7 +76,7 @@ export const login = async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: false, // false en local, true quand dépolyé
+    secure: process.env.MODE === "development" ? false : true, // false en local, true quand dépolyé
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7j de 24h de 60min de 60sec (*1000 pour mettre en millisecondes)
   });
 
@@ -91,7 +91,13 @@ export const verifyMail = async (req, res) => {
     const tempUser = await TempUser.findOne({ email: decoded.email, token });
     if (!tempUser) {
       // gestion du feedback
-      return res.redirect(`${process.env.CLIENT_URL}/register?message=error`);
+      return res.redirect(
+        `${
+          process.env.MODE === "development"
+            ? process.env.CLIENT_URL
+            : process.env.DEPLOY_FRONT_URL
+        }/register?message=error`
+      );
     }
     const newUser = new User({
       username: tempUser.username,
@@ -100,11 +106,23 @@ export const verifyMail = async (req, res) => {
     });
     await newUser.save();
     await TempUser.deleteOne({ email: tempUser.email });
-    return res.redirect(`${process.env.CLIENT_URL}/login?message=success`);
+    return res.redirect(
+      `${
+        process.env.MODE === "development"
+          ? process.env.CLIENT_URL
+          : process.env.DEPLOY_FRONT_URL
+      }/login?message=success`
+    );
   } catch (error) {
     console.log(error);
     if (error.name === "TokenExpiredError") {
-      return res.redirect(`${process.env.CLIENT_URL}/register?message=error`);
+      return res.redirect(
+        `${
+          process.env.MODE === "development"
+            ? process.env.CLIENT_URL
+            : process.env.DEPLOY_FRONT_URL
+        }/register?message=error`
+      );
     }
   }
 };
@@ -133,7 +151,7 @@ export const currentUser = async (req, res) => {
 export const logoutUser = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: false,
+    secure: process.env.MODE === "development" ? false : true,
   });
   res.status(200).json({ message: "Disconnected" });
 };

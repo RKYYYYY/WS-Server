@@ -15,7 +15,11 @@ export const sendConfirmationEmail = async (token, email) => {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Registration confirmation",
-    html: `<p>Welcome to WrongSettings, you will start to be better right after you confirm your account registration ! Just click the link below and let's go ! </p><br><a href=${process.env.API_URL}/user/verifyMail/${token}>Confirm my registration</a>`,
+    html: `<p>Welcome to WrongSettings, you will start to be better right after you confirm your account registration ! Just click the link below and let's go ! </p><br><a href=${
+      process.env.MODE === "development"
+        ? process.env.API_URL
+        : process.env.DEPLOY_BACK_URL
+    }/user/verifyMail/${token}>Confirm my registration</a>`,
   };
 
   await transporter.sendMail(mailOptions);
