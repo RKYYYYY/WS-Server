@@ -78,7 +78,7 @@ export const login = async (req, res) => {
     httpOnly: true,
     secure: process.env.MODE === "development" ? false : true, // false en local, true quand déployé
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7j de 24h de 60min de 60sec (*1000 pour mettre en millisecondes)
-    sameSite: process.env.MODE === "development" ? "Lax" : "None",
+    sameSite: "None",
   });
 
   res.status(200).json({ user, message: "Connected" });
@@ -133,7 +133,7 @@ export const currentUser = async (req, res) => {
 
   if (token) {
     try {
-      const decodedToken = jwt.verify(token, process.env.SECRET_KEY); // vérifie en décoande le token avec la clé secrète
+      const decodedToken = jwt.verify(token, process.env.SECRET_KEY); // vérifie en décode le token avec la clé secrète
       const currentUser = await User.findById(decodedToken.sub); // récupère l'user en se servant de l'id du token
 
       if (currentUser) {
@@ -153,7 +153,7 @@ export const logoutUser = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.MODE === "development" ? false : true,
-    sameSite: process.env.MODE === "development" ? "Lax" : "None",
+    sameSite: "None",
   });
   res.status(200).json({ message: "Disconnected" });
 };
