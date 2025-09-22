@@ -76,7 +76,7 @@ export const login = async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.MODE === "development" ? false : true, // false en local, true quand dépolyé
+    secure: process.env.MODE === "development" ? false : true, // false en local, true quand déployé
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7j de 24h de 60min de 60sec (*1000 pour mettre en millisecondes)
     sameSite: "None",
   });
@@ -157,3 +157,5 @@ export const logoutUser = async (req, res) => {
   });
   res.status(200).json({ message: "Disconnected" });
 };
+
+export const updateProfile = async (req, res) => {};
