@@ -60,7 +60,7 @@ export const login = async (req, res) => {
   }
 
   if (!user) {
-    res.status(400).json({ message: "Wrong e-mail and/or password" });
+    return res.status(400).json({ message: "Wrong e-mail and/or password" });
   }
 
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -78,7 +78,7 @@ export const login = async (req, res) => {
     httpOnly: true,
     secure: process.env.MODE === "development" ? false : true, // false en local, true quand déployé
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7j de 24h de 60min de 60sec (*1000 pour mettre en millisecondes)
-    sameSite: "None",
+    sameSite: process.env.MODE === "development" ? "Lax" : "None",
   });
 
   res.status(200).json({ user, message: "Connected" });
@@ -153,9 +153,43 @@ export const logoutUser = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.MODE === "development" ? false : true,
-    sameSite: "None",
+    sameSite: process.env.MODE === "development" ? "Lax" : "None",
   });
   res.status(200).json({ message: "Disconnected" });
 };
 
-export const updateProfile = async (req, res) => {};
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { currentPassword, newPassword, avatar } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    if (currentPassword) {
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+      if (!isMatch) {
+        return res
+          .status(400)
+          .json({ message: "Current password is not matching" });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    if (avatar) {
+      user.avatar = avatar;
+    }
+
+    await user.save();
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "Server error" });
+  }
+};

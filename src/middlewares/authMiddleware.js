@@ -12,7 +12,7 @@ export const protect = async (req, res, next) => {
 
   try {
     // décryptage du token avec la clé secrète
-    const decoded = jwt.verify(token, ProcessingInstruction.env.SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
     // on attache à la requête l'utilisateur récupéré en BDD grâce à l'ID stocké dans le token
     req.user = await User.findById(decoded.sub).select("-password");
     // on peut alors passer au controller
