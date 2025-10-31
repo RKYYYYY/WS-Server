@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-sgMail.setApiKey(process.env.SEND_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const sendConfirmationEmail = async (email, token) => {
   const msg = {
