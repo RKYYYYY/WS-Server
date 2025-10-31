@@ -28,7 +28,7 @@ export const register = async (req, res) => {
     }
 
     const token = createTokenEmail(email);
-    await sendConfirmationEmail(token, email);
+    // await sendConfirmationEmail(token, email);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

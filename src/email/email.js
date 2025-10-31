@@ -1,20 +1,15 @@
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 import dotenv from "dotenv";
 
 dotenv.config();
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
-export const sendConfirmationEmail = async (token, email) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
+sgMail.setApiKey(process.env.SEND_API_KEY);
+
+export const sendConfirmationEmail = async (sendConfirmationEmail, token) => {
+  const msg = {
     to: email,
-    subject: "Registration confirmation",
+    from: process.env.SENDGRID_SENDER,
+    subject: "Confirmation d'inscription",
     html: `<p>Welcome to WrongSettings, you will start to be better right after you confirm your account registration ! Just click the link below and let's go ! </p><br><a href=${
       process.env.MODE === "development"
         ? process.env.API_URL
@@ -22,5 +17,13 @@ export const sendConfirmationEmail = async (token, email) => {
     }/user/verifyMail/${token}>Confirm my registration</a>`,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    await sgMail.send(msg);
+    console.log("Mail envoyé à" + email);
+  } catch (error) {
+    console.error("Erreur de l'envoi du mail", error);
+    if (error.response) {
+      console.error(error.response.body);
+    }
+  }
 };
