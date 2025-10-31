@@ -28,7 +28,6 @@ export const register = async (req, res) => {
     }
 
     const token = createTokenEmail(email);
-    // await sendConfirmationEmail(token, email);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -39,11 +38,24 @@ export const register = async (req, res) => {
       token,
     });
     await tempUser.save();
+    console.log("TempUser register in DB:", tempUser);
+
+    try {
+      await sendConfirmationEmail(token, email);
+      console.log("Email envoyé avec SendGrid à:", email);
+    } catch (mailError) {
+      console.error(
+        "Error envoi email:",
+        mailError.response?.body || mailError
+      );
+    }
+
     res.status(200).json({
       message: "Please check your emails to confirm your registration",
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error register:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
