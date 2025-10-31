@@ -18,8 +18,8 @@ export const register = async (req, res) => {
 
     const existingUserMail = await User.findOne({ email });
     const existingUserPseudo = await User.findOne({ username });
-    const existingTempUserMail = await User.findOne({ email });
-    const existingTempUserPseudo = await User.findOne({ username });
+    const existingTempUserMail = await TempUser.findOne({ email });
+    const existingTempUserPseudo = await TempUser.findOne({ username });
 
     if (existingUserMail || existingUserPseudo) {
       return res.status(400).json({ message: "Already registered" });
@@ -41,7 +41,7 @@ export const register = async (req, res) => {
     console.log("TempUser register in DB:", tempUser);
 
     try {
-      await sendConfirmationEmail(token, email);
+      await sendConfirmationEmail(email, token);
       console.log("Email envoyé avec SendGrid à:", email);
     } catch (mailError) {
       console.error(
