@@ -204,3 +204,80 @@ export const updateProfile = async (req, res) => {
     res.status(400).json({ message: "Server error" });
   }
 };
+
+export const updateGameSettings = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const gameSettings = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    user.gameSettings = {
+      ...user.gameSettings.toObject(),
+      ...gameSettings,
+    };
+
+    await user.save(); // validation automatique lors du sav
+
+    return res.status(200).json({
+      message: "Game settings updated successfully",
+      gameSettings: user.gameSettings,
+    });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        message: "Validation error",
+        errors: errors,
+      });
+    }
+
+    console.log("Error updating game settings:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getGameSettings = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      gameSettings: user.gameSettings || {},
+    });
+  } catch (error) {
+    console.log("Error getting game settings", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getUserGameSettings = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select(
+      "username avatar gameSettings"
+    );
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      username: user.username,
+      avatar: user.avatar,
+      gameSettings: user.gameSettings || {},
+    });
+  } catch (error) {
+    console.log("Error gettings user game settings", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

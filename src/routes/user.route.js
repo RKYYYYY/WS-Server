@@ -6,6 +6,9 @@ import {
   currentUser,
   logoutUser,
   updateProfile,
+  updateGameSettings,
+  getGameSettings,
+  getUserGameSettings,
 } from "../controllers/user.controller.js"; // importe les 3 fonction qui gèrent la logique d'inscription/connexion
 import { protect } from "../middlewares/authMiddleware.js";
 
@@ -18,6 +21,10 @@ router.get("/verifyMail/:token", verifyMail); // :token capteure la valeur dans 
 router.get("/current", currentUser);
 
 router.put("/profile-settings", protect, updateProfile);
+
+router.get("/game-settings", protect, getGameSettings);
+router.put("/game-settings", protect, updateGameSettings);
+router.get("/game-settings/:userId", getUserGameSettings);
 
 router.delete("/deleteToken", logoutUser);
 
