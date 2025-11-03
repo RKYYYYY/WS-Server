@@ -1,5 +1,5 @@
 import mongoose from "mongoose"; // import pour intéragir avec mongodb
-import gameSettingsSchema from "./gameSettings.schema.js"; // import du schéma des settings
+import gameSettingsSchema from "./gamesettings.schema.js"; // import du schéma des settings
 
 const userSchema = new mongoose.Schema( // schéma qui définit la structure des infos user
   {
