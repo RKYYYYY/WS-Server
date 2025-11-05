@@ -173,13 +173,14 @@ export const logoutUser = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { currentPassword, newPassword, avatar } = req.body;
+    const { currentPassword, newPassword, avatar, username, email } = req.body;
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
+    // Changement de mot de passe
     if (currentPassword) {
       const isMatch = await bcrypt.compare(currentPassword, user.password);
 
@@ -193,8 +194,29 @@ export const updateProfile = async (req, res) => {
       user.password = await bcrypt.hash(newPassword, salt);
     }
 
+    // Changement d'avatar
     if (avatar) {
       user.avatar = avatar;
+    }
+
+    // Changement de pseudo
+    if (username && username !== user.username) {
+      // Vérifier si le nouveau pseudo est déjà pris
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already taken" });
+      }
+      user.username = username;
+    }
+
+    // Changement d'email
+    if (email && email !== user.email) {
+      // Vérifier si le nouvel email est déjà pris
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already taken" });
+      }
+      user.email = email;
     }
 
     await user.save();
@@ -202,6 +224,27 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: "Server error" });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Supprimer l'utilisateur
+    await User.findByIdAndDelete(userId);
+
+    // Supprimer le cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.MODE === "development" ? false : true,
+      sameSite: "None",
+    });
+
+    return res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.log("Error deleting account:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
