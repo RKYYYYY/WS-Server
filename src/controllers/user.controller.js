@@ -281,3 +281,40 @@ export const getUserGameSettings = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// recup tous les utilisateurs avec filtres de recherche / tri
+export const getAllUsers = async (req, res) => {
+  try {
+    const { search, sort } = req.query;
+
+    // construction de la requête de recherche
+    let query = {};
+
+    if (search) {
+      query.username = { $regex: search, $options: "i" }; // recherche insensible à la casse
+    }
+
+    // options de tri
+    let sortOption = {};
+    if (sort === "recent") {
+      sortOption = { createdAt: -1 }; // plus récents en premier
+    } else if (sort === "alphabetical") {
+      sortOption = { username: 1 }; // ordre alphabétique a à z
+    } else if (sort === "saved") {
+      //tri par date de mise à jour
+      sortOption = { updatedAt: -1 };
+    } else {
+      sortOption = { createdAt: -1 }; // par défaut : plus récents
+    }
+
+    // recup des utilisateurs
+    const users = await User.find(query)
+      .sort(sortOption)
+      .select("username avatar createdAt updatedAt"); // ne renvoie que ces champs
+
+    return res.status(200).json({ users });
+  } catch (error) {
+    console.log("Error getting all users:", error);
+    res.status(500).json({ users: [], message: "Server error" });
+  }
+};
