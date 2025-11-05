@@ -35,6 +35,10 @@ const gameSettingsSchema = new mongoose.Schema(
     },
 
     // Crosshair
+    crosshairCode: {
+      type: String,
+      default: null,
+    },
     crosshairStyle: {
       type: String,
       enum: {
