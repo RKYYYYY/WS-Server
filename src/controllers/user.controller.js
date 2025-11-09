@@ -1,5 +1,8 @@
 import dotenv from "dotenv";
-import { sendConfirmationEmail } from "../email/email.js";
+import {
+  sendConfirmationEmail,
+  sendPasswordResetEmail,
+} from "../email/email.js";
 import TempUser from "../models/tempuser.schema.js";
 import User from "../models/user.schema.js";
 
@@ -245,6 +248,86 @@ export const deleteAccount = async (req, res) => {
   } catch (error) {
     console.log("Error deleting account:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "Email not found" });
+    }
+
+    // créer un token de réinitialisation
+    const resetToken = createTokenEmail(email);
+
+    // sauvegarder le token temporairement dans l'utilisateur
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 600000; // 10 minutes
+    await user.save();
+
+    // envoyer l'email
+    try {
+      await sendPasswordResetEmail(email, resetToken);
+      console.log("Password reset email sent to:", email);
+    } catch (mailError) {
+      console.error(
+        "Error sending email:",
+        mailError.response?.body || mailError
+      );
+    }
+
+    res.status(200).json({
+      message: "Password reset email sent. Please check your inbox.",
+    });
+  } catch (error) {
+    console.log("Error forgot password:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    // vérifier le token
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const user = await User.findOne({
+      email: decoded.email,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid or expired token",
+      });
+    }
+
+    // hasher le nouveau mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.log("Error reset password:", error);
+    if (error.name === "TokenExpiredError") {
+      return res.status(400).json({
+        message: "Token expired",
+      });
+    }
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 };
 

@@ -11,6 +11,8 @@ import {
   getUserGameSettings,
   getAllUsers,
   deleteAccount,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/user.controller.js"; // importe les 3 fonction qui gèrent la logique d'inscription/connexion
 import { protect } from "../middlewares/authMiddleware.js";
 
@@ -25,6 +27,8 @@ router.get("/current", currentUser);
 
 router.put("/profile-settings", protect, updateProfile);
 router.delete("/delete-account", protect, deleteAccount);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 router.get("/game-settings", protect, getGameSettings);
 router.put("/game-settings", protect, updateGameSettings);

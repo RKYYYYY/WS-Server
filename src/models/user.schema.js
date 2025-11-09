@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema( // schéma qui définit la structure des
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     avatar: { type: String, default: null },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
     gameSettings: {
       type: gameSettingsSchema,
       default: () => ({}),
