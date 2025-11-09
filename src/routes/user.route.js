@@ -20,6 +20,8 @@ const router = express.Router(); // crée un routeur Express pour grouper les ro
 
 router.post("/", register); // appelle la function register() pour créer un nouveau user
 router.post("/login", login); // appelle la function login() pour authentifier un user
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 router.get("/all", getAllUsers);
 router.get("/verifyMail/:token", verifyMail); // :token capteure la valeur dans l'url pour la vérification d'email
@@ -27,8 +29,6 @@ router.get("/current", currentUser);
 
 router.put("/profile-settings", protect, updateProfile);
 router.delete("/delete-account", protect, deleteAccount);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
 
 router.get("/game-settings", protect, getGameSettings);
 router.put("/game-settings", protect, updateGameSettings);
