@@ -308,11 +308,12 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // hasher le nouveau mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
+
     user.password = hashedPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+
     await user.save();
 
     return res.status(200).json({
