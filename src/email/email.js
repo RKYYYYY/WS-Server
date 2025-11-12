@@ -19,9 +19,9 @@ export const sendConfirmationEmail = async (email, token) => {
 
   try {
     await sgMail.send(msg);
-    console.log("Mail envoyé à" + email);
+    console.log("Mail send to" + email);
   } catch (error) {
-    console.error("Erreur de l'envoi du mail", error);
+    console.error("Erreur sending mail", error);
     if (error.response) {
       console.error(error.response.body);
     }

@@ -9,7 +9,7 @@ const tempUserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-tempUserSchema.index({ createdAt: 1 }, { expireAfterSeconds: 600 }); // suppr auto des données après 2min
+tempUserSchema.index({ createdAt: 1 }, { expireAfterSeconds: 600 }); // suppr auto des données après 10min
 
 const TempUser = mongoose.model("TempUser", tempUserSchema);
 

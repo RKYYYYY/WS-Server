@@ -45,10 +45,10 @@ export const register = async (req, res) => {
 
     try {
       await sendConfirmationEmail(email, token);
-      console.log("Email envoyé avec SendGrid à:", email);
+      console.log("Email send to:", email);
     } catch (mailError) {
       console.error(
-        "Error envoi email:",
+        "Error sending email:",
         mailError.response?.body || mailError
       );
     }
@@ -93,14 +93,13 @@ export const login = async (req, res) => {
     httpOnly: true,
     secure: process.env.MODE === "development" ? false : true, // false en local, true quand déployé
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7j de 24h de 60min de 60sec (*1000 pour mettre en millisecondes)
-    sameSite: "None",
+    sameSite: process.env.MODE === "development" ? "Lax" : "None",
   });
 
   res.status(200).json({ user, message: "Connected" });
 };
 
 export const verifyMail = async (req, res) => {
-  // console.log("TEST EMAIL");
   const { token } = req.params;
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
@@ -168,7 +167,7 @@ export const logoutUser = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.MODE === "development" ? false : true,
-    sameSite: "None",
+    sameSite: process.env.MODE === "development" ? "Lax" : "None",
   });
   res.status(200).json({ message: "Disconnected" });
 };
@@ -241,7 +240,7 @@ export const deleteAccount = async (req, res) => {
     res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.MODE === "development" ? false : true,
-      sameSite: "None",
+      sameSite: process.env.MODE === "development" ? "Lax" : "None",
     });
 
     return res.status(200).json({ message: "Account deleted successfully" });
