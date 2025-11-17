@@ -426,7 +426,6 @@ export const getAllUsers = async (req, res) => {
       sortOption = { createdAt: -1 }; // plus récents en premier
     } else if (sort === "alphabetical") {
       sortOption = { username: 1 }; // ordre alphabétique a à z
-    } else if (sort === "saved") {
       //tri par date de mise à jour
       sortOption = { updatedAt: -1 };
     } else {

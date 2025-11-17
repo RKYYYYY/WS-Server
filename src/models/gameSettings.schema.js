@@ -18,7 +18,7 @@ const gameSettingsSchema = new mongoose.Schema(
     sensitivity: {
       type: Number,
       min: [0.1, "Sensitivity must be at least 0.01"],
-      max: [8, "Sensitivity must be at most 10"],
+      max: [8, "Sensitivity must be at most 8"],
       default: null,
     },
     zoomSensitivity: {
